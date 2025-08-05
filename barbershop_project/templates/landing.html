@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section id="about" class="py-5">
+    <div class="container">
+        <h1 class="display-4 mb-4">Добро пожаловать в барбершоп "Стальная Борода"!</h1>
+        <p class="lead">Мы создаём стиль настоящих мужчин с 1995 года</p>
+    </div>
+</section>
+
+<section id="services" class="py-5 bg-light">
+    <div class="container">
+        <h2 class="mb-4">Наши услуги</h2>
+        <ul class="list-group">
+            {% for service in services %}
+            <li class="list-group-item">{{ service }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+
+<!-- Блок мастеров - улучшенный -->
+<section id="masters" class="py-5">
+    <div class="container">
+        <h2 class="mb-4 text-center">Наши мастера</h2>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for master in masters %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    {% if master.photo %}
+                    <img src="{{ master.photo.url }}" class="card-img-top" alt="{{ master.name }}" style="height: 300px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ master.name }}</h5>
+                        <p class="card-text">
+                            <i class="bi bi-star-fill text-warning"></i> Стаж: {{ master.experience }} лет<br>
+                            <i class="bi bi-telephone"></i> {{ master.phone }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Новый блок отзывов -->
+<section id="reviews" class="py-5 bg-light">
+    <div class="container">
+        <h2 class="mb-4 text-center">Отзывы клиентов</h2>
+        <div class="row row-cols-1 row-cols-lg-2 g-4">
+            {% for review in reviews %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">{{ review.client_name }}</h5>
+                            <div class="rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    {% else %}
+                                        <i class="bi bi-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="card-text">{{ review.text }}</p>
+                        <p class="text-muted mb-0">
+                            <small>Мастер: {{ review.master.name }} | {{ review.created_at|date:"d.m.Y" }}</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="booking" class="py-5 bg-light">
+    <div class="container">
+        <h2 class="mb-4">Запись онлайн</h2>
+        <!-- Здесь будет форма записи -->
+        <a href="#" class="btn btn-primary btn-lg">Записаться</a>
+    </div>
+</section>
+{% endblock %}

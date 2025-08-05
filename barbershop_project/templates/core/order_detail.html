@@ -1,0 +1,65 @@
+<!-- templates/core/order_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Заявка №{{ order.id }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h1 class="mb-0">Заявка №{{ order.id }}</h1>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Клиент:</strong> {{ order.client_name }}</p>
+                    <p><strong>Телефон:</strong> {{ order.phone }}</p>
+                    <p><strong>Дата создания:</strong> {{ order.date_created|date:"d.m.Y H:i" }}</p>
+                    <p><strong>Дата обновления:</strong> {{ order.date_updated|date:"d.m.Y H:i" }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Статус:</strong> 
+                        <span class="badge 
+                            {% if order.status == 'not_approved' %}bg-warning
+                            {% elif order.status == 'approved' %}bg-primary
+                            {% elif order.status == 'cancelled' %}bg-danger
+                            {% else %}bg-success{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </p>
+                    <p><strong>Дата записи:</strong> {{ order.appointment_date|date:"d.m.Y H:i" }}</p>
+                    {% if order.master %}
+                    <p><strong>Мастер:</strong> {{ order.master.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr>
+            
+            <h4>Услуги</h4>
+            <ul class="list-group mb-4">
+                {% for service in order.services.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ service.name }}
+                    <span class="badge bg-primary rounded-pill">{{ service.price }}₽</span>
+                </li>
+                {% endfor %}
+            </ul>
+
+            {% if order.comment %}
+            <h4>Комментарий</h4>
+            <div class="card mb-4">
+                <div class="card-body">
+                    {{ order.comment }}
+                </div>
+            </div>
+            {% endif %}
+            
+            <a href="{% url 'orders_list' %}" class="btn btn-secondary mt-3">
+                <i class="bi bi-arrow-left"></i> Назад к списку
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

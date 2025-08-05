@@ -1,0 +1,43 @@
+<!-- templates/includes/order_card.html -->
+<div class="card shadow-sm h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Заявка #{{ order.id }}</span>
+        <span class="badge 
+            {% if order.status == 'not_approved' %}bg-warning
+            {% elif order.status == 'approved' %}bg-primary
+            {% elif order.status == 'cancelled' %}bg-danger
+            {% else %}bg-success{% endif %}">
+            {{ order.get_status_display }}
+        </span>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ order.client_name }}</h5>
+        <p class="card-text">
+            <i class="bi bi-telephone"></i> {{ order.phone }}<br>
+            <i class="bi bi-calendar"></i> {{ order.appointment_date|date:"d.m.Y H:i" }}<br>
+            
+            {% if order.master %}
+            <i class="bi bi-person"></i> Мастер: {{ order.master.name }}
+            {% endif %}
+        </p>
+        
+        <h6>Услуги:</h6>
+        <ul class="mb-3">
+            {% for service in order.services.all %}
+            <li>{{ service.name }} - {{ service.price }}₽</li>
+            {% endfor %}
+        </ul>
+        
+        {% if order.comment %}
+        <p class="card-text"><strong>Комментарий:</strong> {{ order.comment|truncatechars:50 }}</p>
+        {% endif %}
+    </div>
+    <div class="card-footer bg-white">
+        <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye"></i> Подробнее
+        </a>
+        <span class="float-end text-muted">
+            <small>{{ order.date_created|date:"d.m.Y H:i" }}</small>
+        </span>
+    </div>
+</div>

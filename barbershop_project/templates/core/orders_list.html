@@ -1,0 +1,57 @@
+<!-- templates/core/orders_list.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Список заявок | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Список заявок</h1>
+    
+    <!-- Поисковая форма -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <input type="text" name="search" class="form-control" placeholder="Поиск..." 
+                           value="{{ search_query }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Найти</button>
+                </div>
+                
+                <div class="col-12">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="name_check" id="name_check" 
+                               {% if name_check %}checked{% endif %}>
+                        <label class="form-check-label" for="name_check">По имени</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="phone_check" id="phone_check" 
+                               {% if phone_check %}checked{% endif %}>
+                        <label class="form-check-label" for="phone_check">По телефону</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="comment_check" id="comment_check" 
+                               {% if comment_check %}checked{% endif %}>
+                        <label class="form-check-label" for="comment_check">По комментарию</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Список заказов -->
+    <div class="row">
+        {% for order in orders %}
+        <div class="col-lg-6 mb-4">
+            {% include 'includes/order_card.html' %}
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">Заявки не найдены</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

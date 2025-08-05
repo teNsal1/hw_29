@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Создать заявку</h2>
+    <form method="post" id="order-form">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="id_master" class="form-label">Мастер</label>
+            {{ form.master }}
+        </div>
+        
+        <div class="mb-3">
+            <label for="id_services" class="form-label">Услуги</label>
+            {{ form.services }}
+        </div>
+        
+        <div class="mb-3">
+            <label for="id_client_name" class="form-label">Имя клиента</label>
+            {{ form.client_name }}
+        </div>
+        
+        <div class="mb-3">
+            <label for="id_phone" class="form-label">Телефон</label>
+            {{ form.phone }}
+        </div>
+        
+        <div class="mb-3">
+            <label for="id_comment" class="form-label">Комментарий</label>
+            {{ form.comment }}
+        </div>
+        
+        <div class="mb-3">
+            <label for="id_appointment_date" class="form-label">Дата и время</label>
+            {{ form.appointment_date }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const masterSelect = document.getElementById('id_master');
+    const servicesSelect = document.getElementById('id_services');
+    
+    function loadServices(masterId) {
+        if (masterId) {
+            fetch(`/get_services/?master_id=${masterId}`)
+                .then(response => response.json())
+                .then(services => {
+                    servicesSelect.innerHTML = '';
+                    services.forEach(service => {
+                        const option = new Option(service.name, service.id);
+                        servicesSelect.add(option);
+                    });
+                });
+        }
+    }
+    
+    if (masterSelect && servicesSelect) {
+        masterSelect.addEventListener('change', function() {
+            loadServices(this.value);
+        });
+        
+        // Загрузить услуги при загрузке страницы, если мастер уже выбран
+        if (masterSelect.value) {
+            loadServices(masterSelect.value);
+        }
+    }
+    
+    // Обработка отправки формы
+    const form = document.getElementById('order-form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                return response.json();
+            }
+        })
+        .then(data => {
+            if (data && data.form_html) {
+                document.getElementById('form-container').innerHTML = data.form_html;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
