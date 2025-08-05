@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ReviewForm, OrderForm
 from django.urls import reverse
 from django.contrib import messages
+from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 def create_review(request):
     if request.method == 'POST':
@@ -34,25 +36,15 @@ def get_services(request):
     services = Service.objects.filter(masters__id=master_id).values('id', 'name')
     return JsonResponse(list(services), safe=False)
 
-def landing(request):
-    """
-    Представление главной страницы (лендинга).
-    Отображает активных мастеров, опубликованные отзывы и все услуги.
-    """
-    # Получаем активных мастеров
-    masters = Master.objects.filter(is_active=True)
-    # 5 последних опубликованных отзывов (сортировка по дате создания)
-    reviews = Review.objects.filter(is_published=True).order_by('-created_at')[:5]
-    # Все доступные услуги
-    services = Service.objects.all()
-    
-    # Формируем контекст для шаблона
-    context = {
-        'masters': masters,
-        'services': services,
-        'reviews': reviews,  # Передаем отзывы в шаблон
-    }
-    return render(request, 'landing.html', context)
+class LandingView(TemplateView):
+    template_name = 'landing.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['masters'] = Master.objects.filter(is_active=True)
+        context['reviews'] = Review.objects.filter(is_published=True).order_by('-created_at')[:5]
+        context['services'] = Service.objects.all()
+        return context
 
 @login_required
 def orders_list(request):
@@ -108,5 +100,5 @@ def order_detail(request, order_id):
     context = {'order': order}
     return render(request, 'core/order_detail.html', context)
 
-def thanks(request):
-    return render(request, 'core/thanks.html')
+class ThanksView(TemplateView):
+    template_name = 'core/thanks.html'
