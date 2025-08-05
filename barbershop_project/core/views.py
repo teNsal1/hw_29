@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import DetailView
 
 def create_review(request):
     if request.method == 'POST':
@@ -90,17 +91,11 @@ def orders_list(request):
     }
     return render(request, 'core/orders_list.html', context)
 
-@login_required
-def order_detail(request, order_id):
-    """
-    Детальное представление заказа (только для авторизованных пользователей).
-    Отображает информацию о конкретном заказе по его ID.
-    """
-    # Получаем объект заказа или 404 ошибку если не найден
-    order = get_object_or_404(Order, id=order_id)
-    # Передаем заказ в контекст шаблона
-    context = {'order': order}
-    return render(request, 'core/order_detail.html', context)
+class OrderDetailView(LoginRequiredMixin, DetailView):
+    model = Order
+    template_name = 'core/order_detail.html'
+    context_object_name = 'order'
+    pk_url_kwarg = 'order_id'  # Указываем, что параметр из URL называется order_id (а не pk по умолчанию)
 
 class ThanksView(TemplateView):
     template_name = 'core/thanks.html'
