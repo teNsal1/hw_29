@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.contrib import messages
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 def create_review(request):
     if request.method == 'POST':
@@ -102,3 +104,31 @@ def order_detail(request, order_id):
 
 class ThanksView(TemplateView):
     template_name = 'core/thanks.html'
+
+class OrdersListView(LoginRequiredMixin, ListView):
+    model = Order
+    template_name = 'core/orders_list.html'
+    context_object_name = 'orders'
+    ordering = ['-date_created']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search_query = self.request.GET.get('search', '')
+        if search_query:
+            q_objects = Q()
+            if self.request.GET.get('name_check', 'on') == 'on':
+                q_objects |= Q(client_name__icontains=search_query)
+            if self.request.GET.get('phone_check', 'off') == 'on':
+                q_objects |= Q(phone__icontains=search_query)
+            if self.request.GET.get('comment_check', 'off') == 'on':
+                q_objects |= Q(comment__icontains=search_query)
+            queryset = queryset.filter(q_objects)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['name_check'] = self.request.GET.get('name_check', 'on') == 'on'
+        context['phone_check'] = self.request.GET.get('phone_check', 'off') == 'on'
+        context['comment_check'] = self.request.GET.get('comment_check', 'off') == 'on'
+        return context
