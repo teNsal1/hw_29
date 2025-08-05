@@ -11,6 +11,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView
+from django.views.generic import CreateView
+from django.urls import reverse_lazy
 
 def create_review(request):
     if request.method == 'POST':
@@ -127,3 +129,23 @@ class OrdersListView(LoginRequiredMixin, ListView):
         context['phone_check'] = self.request.GET.get('phone_check', 'off') == 'on'
         context['comment_check'] = self.request.GET.get('comment_check', 'off') == 'on'
         return context
+
+class ReviewCreateView(CreateView):
+    model = Review
+    form_class = ReviewForm
+    template_name = 'core/review_form.html'
+    success_url = reverse_lazy('thanks')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Ваш отзыв успешно отправлен! Спасибо!')
+        return super().form_valid(form)
+    
+class OrderCreateView(CreateView):
+    model = Order
+    form_class = OrderForm
+    template_name = 'core/order_form.html'
+    success_url = reverse_lazy('thanks')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Ваша заявка успешно отправлена! Мы скоро свяжемся с вами.')
+        return super().form_valid(form)
